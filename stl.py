@@ -4,13 +4,13 @@
 # ==============================================================================
 # Copyright 2020-* Luca Bortolussi. All Rights Reserved.
 # Copyright 2020-* Laura Nenzi.     All Rights Reserved.
-# Copyright 2020-* AI-CPS Group @ University of Trieste. All Rights Reserved.
+# Copyright 2020-* AILab @ UniTS.   All Rights Reserved.
 # ==============================================================================
 
 """A fully-differentiable implementation of Signal Temporal Logic semantic trees."""
 
 # For custom type-hints
-from custom_typing import realnum
+from typing import Union, TypeVar
 
 # For tensor functions
 import torch
@@ -18,7 +18,17 @@ from torch import Tensor
 import torch.nn.functional as F
 
 
-def eventually(x: Tensor, time_span: realnum) -> Tensor:
+# Custom types for method binding at typecheck
+NodeType = TypeVar("NodeType", bound="Node")
+AtomType = TypeVar("AtomType", bound="Atom")
+NotType = TypeVar("NotType", bound="Not")
+AndType = TypeVar("AndType", bound="And")
+OrType = TypeVar("OrType", bound="Or")
+GloballyType = TypeVar("GloballyType", bound="Globally")
+EventuallyType = TypeVar("EventuallyType", bound="Eventually")
+
+
+def eventually(x: Tensor, time_span: Union[float, int]) -> Tensor:
     """
     STL operator 'eventually' in 1D.
 
@@ -40,15 +50,17 @@ def eventually(x: Tensor, time_span: realnum) -> Tensor:
 class Node:
     """Abstract node class for STL semantics tree."""
 
-    def __init__(self) -> None:
+    def __init__(self: NodeType) -> None:
         # Must be overloaded.
         pass
 
-    def __str__(self) -> str:
+    def __str__(self: NodeType) -> str:
         # Must be overloaded.
         pass
 
-    def boolean(self, x: Tensor, evaluate_at_all_times: bool = False) -> Tensor:
+    def boolean(
+        self: NodeType, x: Tensor, evaluate_at_all_times: bool = False
+    ) -> Tensor:
         """
         Evaluates the boolean semantics at the node.
 
@@ -72,7 +84,7 @@ class Node:
             return self._extract_semantics_at_time_zero(z)
 
     def quantitative(
-        self,
+        self: NodeType,
         x: Tensor,
         normalize: bool = False,
         evaluate_at_all_times: bool = False,
@@ -102,21 +114,21 @@ class Node:
         else:
             return self._extract_semantics_at_time_zero(z)
 
-    def set_normalizing_flag(self, value: bool = True) -> None:
+    def set_normalizing_flag(self: NodeType, value: bool = True) -> None:
         """
         Setter for the 'normalization of robustness of the formula' flag.
         Currently not in use.
         """
 
-    def time_depth(self) -> realnum:
+    def time_depth(self: NodeType) -> Union[float, int]:
         """Returns time depth of bounded temporal operators only."""
         # Must be overloaded.
 
-    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+    def _quantitative(self: NodeType, x: Tensor, normalize: bool = False) -> Tensor:
         """Private method equivalent to public one for inner call."""
         # Must be overloaded.
 
-    def _boolean(self, x: Tensor) -> Tensor:
+    def _boolean(self: NodeType, x: Tensor) -> Tensor:
         """Private method equivalent to public one for inner call."""
         # Must be overloaded.
 
@@ -129,13 +141,15 @@ class Node:
 class Atom(Node):
     """Atomic formula node; for now of the form X<=t or X>=t"""
 
-    def __init__(self, var_index: int, threshold: realnum, lte: bool = False) -> None:
+    def __init__(
+        self: AtomType, var_index: int, threshold: Union[float, int], lte: bool = False
+    ) -> None:
         super().__init__()
         self.var_index: int = var_index
-        self.threshold: realnum = threshold
+        self.threshold: Union[float, int] = threshold
         self.lte: bool = lte
 
-    def __str__(self) -> str:
+    def __str__(self: AtomType) -> str:
         s: str = (
             "x_"
             + str(self.var_index)
@@ -144,10 +158,10 @@ class Atom(Node):
         )
         return s
 
-    def time_depth(self) -> realnum:
+    def time_depth(self: AtomType) -> Union[float, int]:
         return 0
 
-    def _boolean(self, x: Tensor) -> Tensor:
+    def _boolean(self: AtomType, x: Tensor) -> Tensor:
         # extract tensor of the same dimension as data, but with only one variable
         xj: Tensor = x[:, self.var_index, :]
         xj: Tensor = xj.view(xj.size()[0], 1, -1)
@@ -157,7 +171,7 @@ class Atom(Node):
             z: Tensor = torch.ge(xj, self.threshold)
         return z
 
-    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+    def _quantitative(self: AtomType, x: Tensor, normalize: bool = False) -> Tensor:
         # extract tensor of the same dimension as data, but with only one variable
         xj: Tensor = x[:, self.var_index, :]
         xj: Tensor = xj.view(xj.size()[0], 1, -1)
@@ -173,22 +187,22 @@ class Atom(Node):
 class Not(Node):
     """Negation node."""
 
-    def __init__(self, child: Node) -> None:
+    def __init__(self: NotType, child: Node) -> None:
         super().__init__()
         self.child: Node = child
 
-    def __str__(self) -> str:
+    def __str__(self: NotType) -> str:
         s: str = "not ( " + self.child.__str__() + " )"
         return s
 
-    def time_depth(self) -> realnum:
+    def time_depth(self: NotType) -> Union[float, int]:
         return self.child.time_depth()
 
-    def _boolean(self, x: Tensor) -> Tensor:
+    def _boolean(self: NotType, x: Tensor) -> Tensor:
         z: Tensor = ~self.child._boolean(x)
         return z
 
-    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+    def _quantitative(self: NotType, x: Tensor, normalize: bool = False) -> Tensor:
         z: Tensor = -self.child._quantitative(x, normalize)
         return z
 
@@ -196,12 +210,12 @@ class Not(Node):
 class And(Node):
     """Conjunction node."""
 
-    def __init__(self, left_child: Node, right_child: Node) -> None:
+    def __init__(self: AndType, left_child: Node, right_child: Node) -> None:
         super().__init__()
         self.left_child: Node = left_child
         self.right_child: Node = right_child
 
-    def __str__(self) -> str:
+    def __str__(self: AndType) -> str:
         s: str = (
             "( "
             + self.left_child.__str__()
@@ -211,10 +225,10 @@ class And(Node):
         )
         return s
 
-    def time_depth(self) -> realnum:
+    def time_depth(self: AndType) -> Union[float, int]:
         return max(self.left_child.time_depth(), self.right_child.time_depth())
 
-    def _boolean(self, x: Tensor) -> Tensor:
+    def _boolean(self: AndType, x: Tensor) -> Tensor:
         z1: Tensor = self.left_child._boolean(x)
         z2: Tensor = self.right_child._boolean(x)
         size: int = min(z1.size()[2], z2.size()[2])
@@ -223,7 +237,7 @@ class And(Node):
         z: Tensor = torch.logical_and(z1, z2)
         return z
 
-    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+    def _quantitative(self: AndType, x: Tensor, normalize: bool = False) -> Tensor:
         z1: Tensor = self.left_child._quantitative(x, normalize)
         z2: Tensor = self.right_child._quantitative(x, normalize)
         size: int = min(z1.size()[2], z2.size()[2])
@@ -236,12 +250,12 @@ class And(Node):
 class Or(Node):
     """Disjunction node."""
 
-    def __init__(self, left_child: Node, right_child: Node) -> None:
+    def __init__(self: OrType, left_child: Node, right_child: Node) -> None:
         super().__init__()
         self.left_child: Node = left_child
         self.right_child: Node = right_child
 
-    def __str__(self) -> str:
+    def __str__(self: OrType) -> str:
         s: str = (
             "( "
             + self.left_child.__str__()
@@ -251,10 +265,10 @@ class Or(Node):
         )
         return s
 
-    def time_depth(self) -> realnum:
+    def time_depth(self: OrType) -> Union[float, int]:
         return max(self.left_child.time_depth(), self.right_child.time_depth())
 
-    def _boolean(self, x: Tensor) -> Tensor:
+    def _boolean(self: OrType, x: Tensor) -> Tensor:
         z1: Tensor = self.left_child._boolean(x)
         z2: Tensor = self.right_child._boolean(x)
         size: int = min(z1.size()[2], z2.size()[2])
@@ -263,7 +277,7 @@ class Or(Node):
         z: Tensor = torch.logical_or(z1, z2)
         return z
 
-    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+    def _quantitative(self: OrType, x: Tensor, normalize: bool = False) -> Tensor:
         z1: Tensor = self.left_child._quantitative(x, normalize)
         z2: Tensor = self.right_child._quantitative(x, normalize)
         size: int = min(z1.size()[2], z2.size()[2])
@@ -277,30 +291,30 @@ class Globally(Node):
     """Globally node."""
 
     def __init__(
-        self,
+        self: GloballyType,
         child: Node,
         unbound: bool = True,
-        time_bound: realnum = 0.0,
+        time_bound: Union[float, int] = 0.0,
         adapt_unbound: bool = True,
     ) -> None:
         super().__init__()
         self.child: Node = child
         self.unbound: bool = unbound
-        self.time_bound: realnum = time_bound + 1
+        self.time_bound: Union[float, int] = time_bound + 1
         self.adapt_unbound: bool = adapt_unbound
 
-    def __str__(self) -> str:
+    def __str__(self: GloballyType) -> str:
         s0: str = "[0," + str(self.time_bound) + "]" if not self.unbound else ""
         s: str = "always" + s0 + " ( " + self.child.__str__() + " )"
         return s
 
-    def time_depth(self) -> realnum:
+    def time_depth(self: GloballyType) -> Union[float, int]:
         if self.unbound:
             return self.child.time_depth()
         else:
             return self.child.time_depth() + self.time_bound - 1
 
-    def _boolean(self, x: Tensor) -> Tensor:
+    def _boolean(self: GloballyType, x: Tensor) -> Tensor:
         z1: Tensor = self.child._boolean(x)
         if self.unbound:
             if self.adapt_unbound:
@@ -316,7 +330,7 @@ class Globally(Node):
             z: Tensor = torch.ge(1.0 - eventually((~z1).double(), self.time_bound), 0.5)
         return z
 
-    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+    def _quantitative(self: GloballyType, x: Tensor, normalize: bool = False) -> Tensor:
         z1: Tensor = self.child._quantitative(x, normalize)
         if self.unbound:
             if self.adapt_unbound:
@@ -337,30 +351,30 @@ class Eventually(Node):
     """Eventually node."""
 
     def __init__(
-        self,
+        self: EventuallyType,
         child: Node,
         unbound: bool = True,
-        time_bound: realnum = 0.0,
+        time_bound: Union[float, int] = 0.0,
         adapt_unbound: bool = True,
     ) -> None:
         super().__init__()
         self.child: Node = child
         self.unbound: bool = unbound
-        self.time_bound: realnum = time_bound + 1
+        self.time_bound: Union[float, int] = time_bound + 1
         self.adapt_unbound: bool = adapt_unbound
 
-    def __str__(self) -> str:
+    def __str__(self: EventuallyType) -> str:
         s0: str = "[0," + str(self.time_bound) + "]" if not self.unbound else ""
         s: str = "eventually" + s0 + " ( " + self.child.__str__() + " )"
         return s
 
-    def time_depth(self) -> realnum:
+    def time_depth(self: EventuallyType) -> Union[float, int]:
         if self.unbound:
             return self.child.time_depth()
         else:
             return self.child.time_depth() + self.time_bound - 1
 
-    def _boolean(self, x: Tensor) -> Tensor:
+    def _boolean(self: EventuallyType, x: Tensor) -> Tensor:
         z1: Tensor = self.child._boolean(x)
         if self.unbound:
             if self.adapt_unbound:
@@ -376,7 +390,9 @@ class Eventually(Node):
             z: Tensor = torch.ge(eventually(z1.double(), self.time_bound), 0.5)
         return z
 
-    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+    def _quantitative(
+        self: EventuallyType, x: Tensor, normalize: bool = False
+    ) -> Tensor:
         z1: Tensor = self.child._quantitative(x, normalize)
         if self.unbound:
             if self.adapt_unbound:

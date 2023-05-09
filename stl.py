@@ -10,17 +10,17 @@
 """A fully-differentiable implementation of Signal Temporal Logic semantic trees."""
 
 # For custom type-hints
-from typing import Union, TypeVar
+from typing import TypeVar, Union
 
 # For tensor functions
 import torch
-from torch import Tensor
 import torch.nn.functional as F
-
+from torch import Tensor
 
 # Custom types for method binding at typecheck
 NodeType = TypeVar("NodeType", bound="Node")
 AtomType = TypeVar("AtomType", bound="Atom")
+EqualType = TypeVar("EqualType", bound="Equal")
 NotType = TypeVar("NotType", bound="Not")
 AndType = TypeVar("AndType", bound="And")
 OrType = TypeVar("OrType", bound="Or")
@@ -179,6 +179,38 @@ class Atom(Node):
             z: Tensor = -xj + self.threshold
         else:
             z: Tensor = xj - self.threshold
+        if normalize:
+            z: Tensor = torch.tanh(z)
+        return z
+
+
+class Equal(Node):
+    """Atomic formula node; for now of the form X==t"""
+
+    def __init__(self: EqualType, var_index: int, rhs: Union[float, int]) -> None:
+        super().__init__()
+        self.var_index: int = var_index
+        self.rhs: Union[float, int] = rhs
+
+    def __str__(self: EqualType) -> str:
+        s: str = "x_" + str(self.var_index) + (" ==") + str(self.rhs)
+        return s
+
+    def time_depth(self: EqualType) -> Union[float, int]:
+        return 0
+
+    def _boolean(self: EqualType, x: Tensor) -> Tensor:
+        # extract tensor of the same dimension as data, but with only one variable
+        xj: Tensor = x[:, self.var_index, :]
+        xj: Tensor = xj.view(xj.size()[0], 1, -1)
+        z: Tensor = torch.eq(xj, self.rhs)
+        return z
+
+    def _quantitative(self: EqualType, x: Tensor, normalize: bool = False) -> Tensor:
+        # extract tensor of the same dimension as data, but with only one variable
+        xj: Tensor = x[:, self.var_index, :]
+        xj: Tensor = xj.view(xj.size()[0], 1, -1)
+        z: Tensor = -torch.absolute(xj - self.rhs)
         if normalize:
             z: Tensor = torch.tanh(z)
         return z

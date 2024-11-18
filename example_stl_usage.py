@@ -1,6 +1,6 @@
 import torch
 
-import stl
+from torcheck import stl
 
 print("CUDA availabe = " + str(torch.cuda.is_available()))
 device = torch.device("cuda")

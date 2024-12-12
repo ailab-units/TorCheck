@@ -1,6 +1,6 @@
-# Generated from STL.g4 by ANTLR 4.13.2
+# Generated from STL.g4 by ANTLR 4.11.1
 from antlr4 import *
-if "." in __name__:
+if __name__ is not None and "." in __name__:
     from .STLParser import STLParser
 else:
     from STLParser import STLParser
@@ -9,18 +9,13 @@ else:
 
 class STLVisitor(ParseTreeVisitor):
 
-    # Visit a parse tree produced by STLParser#prog.
-    def visitProg(self, ctx:STLParser.ProgContext):
+    # Visit a parse tree produced by STLParser#textFormula.
+    def visitTextFormula(self, ctx:STLParser.TextFormulaContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by STLParser#textformula.
-    def visitTextformula(self, ctx:STLParser.TextformulaContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by STLParser#assign.
-    def visitAssign(self, ctx:STLParser.AssignContext):
+    # Visit a parse tree produced by STLParser#plainFormla.
+    def visitPlainFormla(self, ctx:STLParser.PlainFormlaContext):
         return self.visitChildren(ctx)
 
 
@@ -49,11 +44,6 @@ class STLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by STLParser#trueFalse.
-    def visitTrueFalse(self, ctx:STLParser.TrueFalseContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by STLParser#U.
     def visitU(self, ctx:STLParser.UContext):
         return self.visitChildren(ctx)
@@ -69,28 +59,8 @@ class STLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by STLParser#number.
-    def visitNumber(self, ctx:STLParser.NumberContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by STLParser#NegNumber.
-    def visitNegNumber(self, ctx:STLParser.NegNumberContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by STLParser#id.
-    def visitId(self, ctx:STLParser.IdContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by STLParser#parensExpr.
-    def visitParensExpr(self, ctx:STLParser.ParensExprContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by STLParser#AlgOp.
-    def visitAlgOp(self, ctx:STLParser.AlgOpContext):
+    # Visit a parse tree produced by STLParser#atomicPredicate.
+    def visitAtomicPredicate(self, ctx:STLParser.AtomicPredicateContext):
         return self.visitChildren(ctx)
 
 
@@ -99,8 +69,33 @@ class STLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by STLParser#rightUnbound.
+    def visitRightUnbound(self, ctx:STLParser.RightUnboundContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by STLParser#emptyTimeBounds.
     def visitEmptyTimeBounds(self, ctx:STLParser.EmptyTimeBoundsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by STLParser#number.
+    def visitNumber(self, ctx:STLParser.NumberContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by STLParser#negNumber.
+    def visitNegNumber(self, ctx:STLParser.NegNumberContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by STLParser#natural.
+    def visitNatural(self, ctx:STLParser.NaturalContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by STLParser#negNatural.
+    def visitNegNatural(self, ctx:STLParser.NegNaturalContext):
         return self.visitChildren(ctx)
 
 

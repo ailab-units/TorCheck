@@ -1,6 +1,6 @@
-# Generated from STL.g4 by ANTLR 4.13.2
+# Generated from STL.g4 by ANTLR 4.11.1
 from antlr4 import *
-if "." in __name__:
+if __name__ is not None and "." in __name__:
     from .STLParser import STLParser
 else:
     from STLParser import STLParser
@@ -8,30 +8,21 @@ else:
 # This class defines a complete listener for a parse tree produced by STLParser.
 class STLListener(ParseTreeListener):
 
-    # Enter a parse tree produced by STLParser#prog.
-    def enterProg(self, ctx:STLParser.ProgContext):
+    # Enter a parse tree produced by STLParser#textFormula.
+    def enterTextFormula(self, ctx:STLParser.TextFormulaContext):
         pass
 
-    # Exit a parse tree produced by STLParser#prog.
-    def exitProg(self, ctx:STLParser.ProgContext):
-        pass
-
-
-    # Enter a parse tree produced by STLParser#textformula.
-    def enterTextformula(self, ctx:STLParser.TextformulaContext):
-        pass
-
-    # Exit a parse tree produced by STLParser#textformula.
-    def exitTextformula(self, ctx:STLParser.TextformulaContext):
+    # Exit a parse tree produced by STLParser#textFormula.
+    def exitTextFormula(self, ctx:STLParser.TextFormulaContext):
         pass
 
 
-    # Enter a parse tree produced by STLParser#assign.
-    def enterAssign(self, ctx:STLParser.AssignContext):
+    # Enter a parse tree produced by STLParser#plainFormla.
+    def enterPlainFormla(self, ctx:STLParser.PlainFormlaContext):
         pass
 
-    # Exit a parse tree produced by STLParser#assign.
-    def exitAssign(self, ctx:STLParser.AssignContext):
+    # Exit a parse tree produced by STLParser#plainFormla.
+    def exitPlainFormla(self, ctx:STLParser.PlainFormlaContext):
         pass
 
 
@@ -80,15 +71,6 @@ class STLListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by STLParser#trueFalse.
-    def enterTrueFalse(self, ctx:STLParser.TrueFalseContext):
-        pass
-
-    # Exit a parse tree produced by STLParser#trueFalse.
-    def exitTrueFalse(self, ctx:STLParser.TrueFalseContext):
-        pass
-
-
     # Enter a parse tree produced by STLParser#U.
     def enterU(self, ctx:STLParser.UContext):
         pass
@@ -116,48 +98,12 @@ class STLListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by STLParser#number.
-    def enterNumber(self, ctx:STLParser.NumberContext):
+    # Enter a parse tree produced by STLParser#atomicPredicate.
+    def enterAtomicPredicate(self, ctx:STLParser.AtomicPredicateContext):
         pass
 
-    # Exit a parse tree produced by STLParser#number.
-    def exitNumber(self, ctx:STLParser.NumberContext):
-        pass
-
-
-    # Enter a parse tree produced by STLParser#NegNumber.
-    def enterNegNumber(self, ctx:STLParser.NegNumberContext):
-        pass
-
-    # Exit a parse tree produced by STLParser#NegNumber.
-    def exitNegNumber(self, ctx:STLParser.NegNumberContext):
-        pass
-
-
-    # Enter a parse tree produced by STLParser#id.
-    def enterId(self, ctx:STLParser.IdContext):
-        pass
-
-    # Exit a parse tree produced by STLParser#id.
-    def exitId(self, ctx:STLParser.IdContext):
-        pass
-
-
-    # Enter a parse tree produced by STLParser#parensExpr.
-    def enterParensExpr(self, ctx:STLParser.ParensExprContext):
-        pass
-
-    # Exit a parse tree produced by STLParser#parensExpr.
-    def exitParensExpr(self, ctx:STLParser.ParensExprContext):
-        pass
-
-
-    # Enter a parse tree produced by STLParser#AlgOp.
-    def enterAlgOp(self, ctx:STLParser.AlgOpContext):
-        pass
-
-    # Exit a parse tree produced by STLParser#AlgOp.
-    def exitAlgOp(self, ctx:STLParser.AlgOpContext):
+    # Exit a parse tree produced by STLParser#atomicPredicate.
+    def exitAtomicPredicate(self, ctx:STLParser.AtomicPredicateContext):
         pass
 
 
@@ -170,12 +116,57 @@ class STLListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by STLParser#rightUnbound.
+    def enterRightUnbound(self, ctx:STLParser.RightUnboundContext):
+        pass
+
+    # Exit a parse tree produced by STLParser#rightUnbound.
+    def exitRightUnbound(self, ctx:STLParser.RightUnboundContext):
+        pass
+
+
     # Enter a parse tree produced by STLParser#emptyTimeBounds.
     def enterEmptyTimeBounds(self, ctx:STLParser.EmptyTimeBoundsContext):
         pass
 
     # Exit a parse tree produced by STLParser#emptyTimeBounds.
     def exitEmptyTimeBounds(self, ctx:STLParser.EmptyTimeBoundsContext):
+        pass
+
+
+    # Enter a parse tree produced by STLParser#number.
+    def enterNumber(self, ctx:STLParser.NumberContext):
+        pass
+
+    # Exit a parse tree produced by STLParser#number.
+    def exitNumber(self, ctx:STLParser.NumberContext):
+        pass
+
+
+    # Enter a parse tree produced by STLParser#negNumber.
+    def enterNegNumber(self, ctx:STLParser.NegNumberContext):
+        pass
+
+    # Exit a parse tree produced by STLParser#negNumber.
+    def exitNegNumber(self, ctx:STLParser.NegNumberContext):
+        pass
+
+
+    # Enter a parse tree produced by STLParser#natural.
+    def enterNatural(self, ctx:STLParser.NaturalContext):
+        pass
+
+    # Exit a parse tree produced by STLParser#natural.
+    def exitNatural(self, ctx:STLParser.NaturalContext):
+        pass
+
+
+    # Enter a parse tree produced by STLParser#negNatural.
+    def enterNegNatural(self, ctx:STLParser.NegNaturalContext):
+        pass
+
+    # Exit a parse tree produced by STLParser#negNatural.
+    def exitNegNatural(self, ctx:STLParser.NegNaturalContext):
         pass
 
 

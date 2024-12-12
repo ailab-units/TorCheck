@@ -1,2 +1,5 @@
 .idea/
 __pycache__/
+/venv/
+/torcheck/stlParser/antlr-4.11.1-complete.jar
+**/.DS_Store

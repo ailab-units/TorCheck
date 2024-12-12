@@ -1,68 +1,82 @@
 grammar STL;
 
-prog	:	stat+
-	    ;
-
-stat:   formula NEWLINE                 # textformula
-    |   PARAMETERS EQ expr NEWLINE      # assign
+prog :   formula NEWLINE                 # textFormula
+    | formula                            # plainFormla
+//    |   PARAMETERS EQ expr NEWLINE      # assign
     |   NEWLINE                         # blank
     ;
 
-formula: LPAR formula RPAR op=(AND|OR) LPAR formula  RPAR  # AndOr
-	|	 NOT LPAR formula  RPAR                            # Not
-	|    expr op=(GT|GE|LT|LE|E) expr                        # Atom
+formula : LPAR formula op=(AND|OR) formula  RPAR           # AndOr
+	|	 NOT formula                                       # Not
+//	|    expr op=(GT|GE|LT|LE|E) expr                        # Atom
+	|    var op=(GE|LE) expr                               # Atom
 	|    LPAR formula RPAR                                 # parensFormula
-	|    op =(TRUE|FALSE)                                  # trueFalse
-	|	 LPAR formula RPAR U  interval LPAR formula RPAR   # U
+//	|    op =(TRUE|FALSE)                                  # trueFalse
+//	|	 LPAR formula RPAR U  interval LPAR formula RPAR   # U
+    |	 LPAR formula U  interval formula RPAR             # U
 	|    F  interval LPAR formula RPAR                     # F
 	|	 G  interval LPAR formula RPAR                     # G
 	;
 
-expr:   expr op=(MULT|DIV|PLUS|MINUS) expr      # AlgOp
-    |   NUMBER                              # number
-    |   MINUS NUMBER                        # NegNumber
-    |   op=(PARAMETERS|SERIES)              # id
-    |   LPAR expr RPAR                      # parensExpr
+var: X UNDERSCORE NATURAL  # atomicPredicate
     ;
 
-
-
 interval : LBRAT  expr COMMA  expr RBRAT # timeBounds
-    |  # emptyTimeBounds
+    |  LBRAT expr COMMA INF RBRAT        # rightUnbound
+    |                                    # emptyTimeBounds
 	;
 
+expr:   NUMBER                              # number
+    |   MINUS NUMBER                        # negNumber
+    |   NATURAL                               # natural
+    |   MINUS NATURAL                         # negNatural
+//    |   op=(PARAMETERS|SERIES)              # id
+//    |   LPAR expr RPAR                      # parensExpr
+//    | expr op=(MULT|DIV|PLUS|MINUS) expr      # AlgOp
+    ;
 
-PARAMETERS:     [a-z]+ ;
-SERIES  :       [A-Z] ([A-Z] | [0-9])* ;
+// PARAMETERS:     [a-z]+ ;
+// SERIES  :       [A-Z] ([A-Z] | [0-9])* ;
+
+NATURAL : [0-9]+ ;
+NUMBER : NATURAL+ ('.' NATURAL+) ;
+
+
+
 
 LPAR    :       '(';
 RPAR    :       ')';
 COMMA   :       ',';
 LBRAT   :       '[';
 RBRAT   :       ']';
-U       :	'U_';
-F       :	'F_';
-G       :	'G_';
+U       :	'until';
+F       :	'eventually';
+G       :	'always';
+INF     :   'inf';
 
-TRUE	:	'True';
-FALSE	:	'False';
+// TRUE	:	'True';
+// FALSE	:	'False';
 
-PLUS	:	'+';
+// PLUS	:	'+';
 MINUS	:	'-';
-MULT	:	'*';
-DIV	:	'/';
+// MULT	:	'*';
+UNDERSCORE : '_';
+// DIV	:	'/';
 
-AND	:	'&';
-OR	:	'|';
-NOT	:	'!';
+AND	:	'and';
+OR	:	'or';
+NOT	:	'not';
 
 EQ	:	'=';
-NEQ	:	'!=';
-GT	:	'>';
+// NEQ	:	'!=';
+// GT	:	'>';
 GE	:	'>=';
-LT	:	'<';
+// LT	:	'<';
 LE	:	'<=';
-E	:	'==';
+// E	:	'==';
+
+X   :   'x';
+
 
 
 
@@ -71,19 +85,20 @@ E	:	'==';
 //INTEGER	:	'0'..'9'+
 //	;
 
-NUMBER
-	:   ('0'..'9')+ ('.')* ('0'..'9')* EXPONENT?
-	|   '.' ('0'..'9')+ EXPONENT?
-	|   ('0'..'9')+ EXPONENT
-	;
-
-fragment
-EXPONENT : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
+// NUMBER :
+//	:   ('0'..'9')+ ('.')* ('0'..'9')* EXPONENT?
+//	|   '.' ('0'..'9')+ EXPONENT?
+//	|   ('0'..'9')+ EXPONENT
+//	;
 
 
+// fragment
+// EXPONENT : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 
-ID	:	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
-	;
+
+
+// ID	:	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
+//	;
 
 NEWLINE	:	( '\r'| '\n' )
 	;
